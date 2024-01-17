@@ -1,0 +1,40 @@
+<mujoco model="bee">
+  <compiler angle="radian"/>
+  
+    <asset>
+    <texture name="grid" type="2d" builtin="checker" width="512" height="512" rgb1=".1 .2 .3" rgb2=".2 .3 .4"/>
+    <material name="grid" texture="grid" texrepeat="1 1" texuniform="true" reflectance=".2"/>
+  </asset>
+  
+  <statistic meansize="0.503891" extent="1.63278" center="0.195759 0 0"/>
+  <worldbody>
+    <geom type="plane" size="3 3 .01" material="grid" pos="0 0 -1.0"/>
+    <body name="body">
+        <geom size="0.5 0.25 0.25" type="box" rgba="0 0 1 1" />
+        <body name="left_wing" pos="0 0.4 0" quat="0 0.707107 0.707107 0">
+          <joint name="left_link" pos="-0.2 0 0" axis="0 1 0"/>
+          <geom type="cylinder" size="0.2 0.0325" rgba="0 1 0 1"/>
+        </body>
+        <body name="right_wing" pos="0 -0.4 0" quat="0 0.707107 0.707107 0">
+          <joint name="right_link" pos="0.2 0 0" axis="0 1 0"/>
+          <geom type="cylinder" size="0.2 0.0325" rgba="0 1 0 1"/>
+        </body>
+    </body>
+  </worldbody>
+  
+  <tendon>
+    <fixed name="flap">
+      <joint joint="left_link" coef="200"/>
+      <joint joint="right_link" coef="200"/>
+    </fixed>
+  </tendon>
+
+  <actuator>
+    <motor name="flap" tendon="flap" ctrlrange="-1 1"/>
+  </actuator>
+
+  <sensor>
+    <jointactuatorfrc name="right_link" joint="right_link"/>
+    <jointactuatorfrc name="left_link" joint="left_link"/>
+  </sensor>
+</mujoco>
