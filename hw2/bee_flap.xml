@@ -1,0 +1,34 @@
+<mujoco model="bee">
+  <!-- <option gravity="0 0 -9.81"/> -->
+  
+  <!-- <statistic meansize="0.503891" extent="1.63278" center="0.195759 0 0"/> -->
+  <worldbody>
+    <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1"/>
+    <geom type="plane" size="5 5 0.1" rgba=".9 .9 .9 1"/>
+
+    <body name="body">
+        <joint type="free"/>>
+        <site name="marker" pos="0 0 0" size="0.05"/>
+        <geom size="0.5 0.25 0.25" type="box" pos="0 0 0.25" rgba="0 0 1 1" mass="0.01"/>
+
+        <body name="left_wing" pos="0 0.45 0.15" euler="0 0 90">
+          <joint name="left_link" type="hinge" pos="-0.2 0 0" axis="0 1 0" range="-45 45"/>
+          <geom type="cylinder" size="0.2 0.0325" rgba="0 1 0 1" mass="1"/>
+        </body>
+
+        <body name="right_wing" pos="0 -0.45 0.15" euler="0 0 90">
+          <joint name="right_link" type="hinge" pos="0.2 0 0" axis="0 1 0" range="-45 45"/>
+          <geom type="cylinder" size="0.2 0.0325" rgba="0 1 0 1" mass="1"/>
+        </body>
+    </body>
+  </worldbody>
+
+  <actuator>
+    <motor name="left_wing_motor" joint="left_link" gear="10" ctrllimited="true" ctrlrange="-5 5"/>
+    <motor name="right_wing_motor" joint="right_link" gear="10" ctrllimited="true" ctrlrange="-5 5"/>
+  </actuator>
+
+  <sensor>
+    <framepos objtype="site" objname="marker" />
+  </sensor>
+</mujoco>
