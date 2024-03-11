@@ -1,4 +1,4 @@
-<mujoco model="bee">
+<mujoco model="pengu">
   <!-- <option gravity="0 0 -9.81"/> -->
   
   <!-- <statistic meansize="0.503891" extent="1.63278" center="0.195759 0 0"/> -->
