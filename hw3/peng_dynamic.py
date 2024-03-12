@@ -8,8 +8,12 @@ import matplotlib.pyplot as plt
 
 run_num_list =[]
 overall_fitness_list = []
+dist_travelled_list = []
+height_gained_list = []
+avg_gear_list = []
+avg_range_list = []
 
-for run in range(100):
+for run in range(500):
     print(f"Run: {run+1}")
     # create elements/subelements
     mujoco = ET.Element('mujoco')
@@ -82,7 +86,7 @@ for run in range(100):
     amp = 1.5
 
     # Simulation loop
-    for k in range(100):
+    for k in range(1000):
         if viewer.is_alive:
             mj.mj_step(model, data)
             sin_wave = amp * math.sin(2 * math.pi * f * k)
@@ -120,6 +124,12 @@ for run in range(100):
     run_num_list.append(run+1)
     overall_fitness_list.append(fitness)
 
+    # append distance travelled, height gained, average gear power, and average range of wing movement to respective lists
+    dist_travelled_list.append(dist_travelled)
+    height_gained_list.append(height_gained)
+    avg_gear_list.append(avg_gear)
+    avg_range_list.append(avg_range)
+
     print("-----------------------------------------------------")
 
 
@@ -134,4 +144,41 @@ for i, txt in enumerate(overall_fitness_list):
 plt.xlabel('Organism Number')
 plt.ylabel('Overall Fitness')
 plt.title('Fitness of Dynamically Generated Organisms')
+# plt.show()
+
+# determine index of most fit organism
+most_fit_index = overall_fitness_list.index(max(overall_fitness_list))
+
+# Calculate averages for the remaining organisms
+dist_travelled_avg = sum(dist_travelled_list[:most_fit_index] + dist_travelled_list[most_fit_index + 1:]) / (len(run_num_list) - 1)
+height_gained_avg = sum(height_gained_list[:most_fit_index] + height_gained_list[most_fit_index + 1:]) / (len(run_num_list) - 1)
+avg_gear_avg = sum(avg_gear_list[:most_fit_index] + avg_gear_list[most_fit_index + 1:]) / (len(run_num_list) - 1)
+avg_range_avg = sum(avg_range_list[:most_fit_index] + avg_range_list[most_fit_index + 1:]) / (len(run_num_list) - 1)
+
+# Get values for the most fit organism
+most_fit_dist_travelled = dist_travelled_list[most_fit_index]
+most_fit_height_gained = height_gained_list[most_fit_index]
+most_fit_avg_gear = avg_gear_list[most_fit_index]
+most_fit_avg_range = avg_range_list[most_fit_index]
+
+# plot bar chart comparing average values to the most fit organism
+parameters = ['Distance Traveled', 'Height Gained', 'Average Gear Power', 'Average Range of Wing Movement']
+avg_values = [dist_travelled_avg, height_gained_avg, avg_gear_avg, avg_range_avg]
+most_fit_values = [most_fit_dist_travelled, most_fit_height_gained, most_fit_avg_gear, most_fit_avg_range]
+
+bar_width = 0.35
+index = range(len(parameters))
+
+fig, ax = plt.subplots()
+bar1 = ax.bar(index, avg_values, bar_width, label='Average Values')
+bar2 = ax.bar([i + bar_width for i in index], most_fit_values, bar_width, label='Most Fit Organism', color='orange')
+
+ax.set_xlabel('Parameters')
+ax.set_ylabel('Values')
+ax.set_title('Comparison of Average Values to Most Fit Organism')
+ax.set_xticks([i + bar_width / 2 for i in index])
+ax.set_xticklabels(parameters)
+ax.legend()
+
 plt.show()
+
