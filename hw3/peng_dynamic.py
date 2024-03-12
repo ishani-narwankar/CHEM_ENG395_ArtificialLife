@@ -12,8 +12,13 @@ dist_travelled_list = []
 height_gained_list = []
 avg_gear_list = []
 avg_range_list = []
+run_params = []
 
-for run in range(500):
+# Initialize variables to store parameters of the most fit organism
+most_fit_params = None
+most_fit_fitness = -1
+
+for run in range(3):
     print(f"Run: {run+1}")
     # create elements/subelements
     mujoco = ET.Element('mujoco')
@@ -80,6 +85,8 @@ for run in range(500):
 
     # create viewer
     viewer = mujoco_viewer.MujocoViewer(model, data)
+    viewer.cam.distance = 15
+    viewer.cam.azimuth = 60
 
     # set frequency and amplitude
     f = 0.1
@@ -132,7 +139,14 @@ for run in range(500):
 
     print("-----------------------------------------------------")
 
-
+    # Check if the current organism is the most fit
+    if fitness > most_fit_fitness:
+        most_fit_fitness = fitness
+        most_fit_params = {
+            'num_wings': num_wings,
+            'range_list': range_list.copy(),  # Make a copy to avoid overwriting
+            'gear_list': gear_list.copy()     # the lists in subsequent iterations
+        }
     # Close the viewer
     viewer.close()
 
@@ -182,3 +196,36 @@ ax.legend()
 
 plt.show()
 
+#---------------------------#
+# Write most fit organism to XML file
+
+# Write most fit organism to XML file
+if most_fit_params is not None:
+    # Define the number of wings for the most fit organism
+    num_wings = len(most_fit_params['range_list'])
+
+    # Create XML elements for the most fit organism
+    most_fit_mujoco = ET.Element('mujoco')
+    most_fit_worldbody = ET.SubElement(most_fit_mujoco, 'worldbody')
+    most_fit_actuator = ET.SubElement(most_fit_mujoco, 'actuator')
+
+    # Create plane and light
+    light = ET.SubElement(most_fit_worldbody, 'light', diffuse=".5 .5 .5", pos="0 0 3", dir="0 0 -1")
+    plane = ET.SubElement(most_fit_worldbody, 'geom', name="ground", type="plane", size="5 5 0.1", rgba=".9 .9 .9 1")
+    bf_mf = ET.SubElement(most_fit_worldbody, 'body', name="body")
+    joint_free_mf = ET.SubElement(bf_mf, 'freejoint', name="root")
+    pen_body_mf = ET.SubElement(bf_mf, 'geom', name="torso", type="box", size="0.5 0.25 0.25", pos="0 0 0.25", rgba="0 0 1 1", mass="0.1")
+
+    # Add wings to body
+    for w in range(num_wings):
+        wing_mf = ET.SubElement(bf_mf, 'body', name="wing" + str(w), pos="0 0.4 0.25", euler="0 0 90")
+        joint_hinge_mf = ET.SubElement(wing_mf, 'joint', name="wing" + str(w) + "link", type="hinge", axis="0 0 1", range=f"{-most_fit_params['range_list'][w]} {most_fit_params['range_list'][w]}")
+        wing_geom_mf = ET.SubElement(wing_mf, 'geom', name="wing" + str(w), type="cylinder", size="0.2 0.0325", pos="0 0 0", rgba="0 1 0 1", mass="1")
+        motor_mf = ET.SubElement(most_fit_actuator, 'motor', name="wing" + str(w) + "m", joint=f"wing{w}link", gear=f"{most_fit_params['gear_list'][w]}", ctrllimited="true", ctrlrange="-5 5")
+
+    # Write to XML file
+    tree2 = ET.ElementTree(most_fit_mujoco)
+    tree2.write('most_fit_penguin.xml')
+    print("Most fit organism config written to most_fit_penguin.xml")
+else:
+    print("No most fit organism found.")
