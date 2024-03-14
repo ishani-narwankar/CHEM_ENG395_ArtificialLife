@@ -4,7 +4,7 @@ import numpy as np
 import dm_control.mujoco
 import math
 
-model = dm_control.mujoco.MjModel.from_xml_path('most_fit_penguin.xml')
+model = dm_control.mujoco.MjModel.from_xml_path('most_fit_df.xml')
 data = dm_control.mujoco.MjData(model)
 
 viewer = mujoco_viewer.MujocoViewer(model, data)
